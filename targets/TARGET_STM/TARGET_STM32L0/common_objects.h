@@ -116,7 +116,22 @@ struct flash_s {
     uint32_t dummy;
 };
 
+struct analogin_s {
+    ADC_HandleTypeDef handle;
+    PinName pin;
+    uint8_t channel;
+};
+
 #include "gpio_object.h"
+
+#if DEVICE_ANALOGOUT
+struct dac_s {
+    DACName dac;
+    PinName pin;
+    uint32_t channel;
+    DAC_HandleTypeDef handle;
+};
+#endif
 
 #ifdef __cplusplus
 }

@@ -28,7 +28,7 @@
 #include "osdep_service.h"
 
 typedef struct _wifi_scan_hdl {
-    void *scan_sema;
+    _sema scan_sema;
     nsapi_size_t ap_num;
     nsapi_size_t scan_num;
     WiFiAccessPoint *ap_details;
@@ -73,9 +73,7 @@ static rtw_result_t scan_result_handler( rtw_scan_handler_result_t* malloced_sca
             }
             ap.rssi = record->signal_strength;
             ap.channel = record->channel;
-            WiFiAccessPoint *accesspoint = new WiFiAccessPoint(ap);
-            memcpy(&scan_handler->ap_details[scan_handler->ap_num], accesspoint, sizeof(WiFiAccessPoint));
-            delete[] accesspoint;
+            scan_handler->ap_details[scan_handler->ap_num] = WiFiAccessPoint(ap);
         }
         scan_handler->ap_num++;
     } else{
@@ -85,12 +83,14 @@ static rtw_result_t scan_result_handler( rtw_scan_handler_result_t* malloced_sca
     return RTW_SUCCESS;
 }
 
-RTWInterface::RTWInterface()
+RTWInterface::RTWInterface(bool debug)
     : _dhcp(true), _ip_address(), _netmask(), _gateway()
 {
     emac_interface_t *emac;
     int ret;
+    extern u32 GlobalDebugEnable; 
 
+    GlobalDebugEnable = debug?1:0;
     emac = wlan_emac_init_interface();
     if (!emac) {
         printf("Error init RTWInterface!\r\n");

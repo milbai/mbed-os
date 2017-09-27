@@ -40,24 +40,8 @@ struct port_s {
     __IO uint32_t *reg_out;
 };
 
-struct analogin_s {
-    ADCName adc;
-    PinName pin;
-    uint8_t channel;
-};
-
-struct can_s {
-    CANName can;
-    int index;
-};
-
 struct trng_s {
     RNG_HandleTypeDef handle;
-};
-
-struct dac_s {
-    DACName dac;
-    uint8_t channel;
 };
 
 #include "common_objects.h"

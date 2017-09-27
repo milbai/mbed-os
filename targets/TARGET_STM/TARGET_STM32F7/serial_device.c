@@ -238,20 +238,19 @@ static void uart_irq(int id)
     UART_HandleTypeDef * huart = &uart_handlers[id];
     
     if (serial_irq_ids[id] != 0) {
-        if (__HAL_UART_GET_FLAG(huart, UART_FLAG_TC) != RESET) {
-            if (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_TC) != RESET) {
+        if (__HAL_UART_GET_FLAG(huart, UART_FLAG_TXE) != RESET) {
+            if (__HAL_UART_GET_IT(huart, UART_IT_TXE) != RESET) {
                 irq_handler(serial_irq_ids[id], TxIrq);
-                __HAL_UART_CLEAR_IT(huart, UART_CLEAR_TCF);
             }
         }
         if (__HAL_UART_GET_FLAG(huart, UART_FLAG_RXNE) != RESET) {
-            if (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_RXNE) != RESET) {
+            if (__HAL_UART_GET_IT(huart, UART_IT_RXNE) != RESET) {
                 irq_handler(serial_irq_ids[id], RxIrq);
-                volatile uint32_t tmpval = huart->Instance->RDR; // Clear RXNE
+                /*  Flag has been cleared when reading the content */
             }
         }
         if (__HAL_UART_GET_FLAG(huart, UART_FLAG_ORE) != RESET) {
-            if (__HAL_UART_GET_IT_SOURCE(huart, UART_IT_ORE) != RESET) {
+            if (__HAL_UART_GET_IT(huart, UART_IT_ORE) != RESET) {
                 __HAL_UART_CLEAR_IT(huart, UART_CLEAR_OREF);
             }
         }
@@ -373,7 +372,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
         if (irq == RxIrq) {
             __HAL_UART_ENABLE_IT(huart, UART_IT_RXNE);
         } else { // TxIrq
-            __HAL_UART_ENABLE_IT(huart, UART_IT_TC);
+            __HAL_UART_ENABLE_IT(huart, UART_IT_TXE);
         }
         NVIC_SetVector(irq_n, vector);
         NVIC_EnableIRQ(irq_n);
@@ -387,7 +386,7 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
                 all_disabled = 1;
             }
         } else { // TxIrq
-            __HAL_UART_DISABLE_IT(huart, UART_IT_TC);
+            __HAL_UART_DISABLE_IT(huart, UART_IT_TXE);
             // Check if RxIrq is disabled too
             if ((huart->Instance->CR1 & USART_CR1_RXNEIE) == 0) {
                 all_disabled = 1;
@@ -744,19 +743,19 @@ int serial_irq_handler_asynch(serial_t *obj)
     
     // Handle error events
     if (__HAL_UART_GET_FLAG(huart, UART_FLAG_PE) != RESET) {
-        if (__HAL_UART_GET_IT_SOURCE(huart, USART_IT_ERR) != RESET) {
+        if (__HAL_UART_GET_IT(huart, UART_IT_PE) != RESET) {
             return_event |= (SERIAL_EVENT_RX_PARITY_ERROR & obj_s->events);
         }
     }
     
     if (__HAL_UART_GET_FLAG(huart, UART_FLAG_FE) != RESET) {
-        if (__HAL_UART_GET_IT_SOURCE(huart, USART_IT_ERR) != RESET) {
+        if (__HAL_UART_GET_IT(huart, UART_IT_FE) != RESET) {
             return_event |= (SERIAL_EVENT_RX_FRAMING_ERROR & obj_s->events);
         }
     }
     
     if (__HAL_UART_GET_FLAG(huart, UART_FLAG_ORE) != RESET) {
-        if (__HAL_UART_GET_IT_SOURCE(huart, USART_IT_ERR) != RESET) {
+        if (__HAL_UART_GET_IT(huart, UART_IT_ORE) != RESET) {
             return_event |= (SERIAL_EVENT_RX_OVERRUN_ERROR & obj_s->events);
         }
     }

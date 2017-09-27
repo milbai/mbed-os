@@ -2,13 +2,13 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_conf.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    30-December-2016
+  * @version V1.2.2
+  * @date    14-April-2017
   * @brief   HAL configuration file.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -105,11 +105,13 @@
   *        This value is used by the RCC HAL module to compute the system frequency
   *        (when HSE is used as system clock source, directly or through the PLL).
   */
+#if !defined  (HSE_VALUE)
 #if defined(TARGET_DISCO_F746NG) || defined(TARGET_DISCO_F769NI)
   #define HSE_VALUE    25000000U /*!< Value of the External oscillator in Hz */
 #else
   #define HSE_VALUE    8000000U /*!< Default value of the External oscillator in Hz */
 #endif
+#endif /* HSE_VALUE */
 
 #if !defined  (HSE_STARTUP_TIMEOUT)
   #define HSE_STARTUP_TIMEOUT    200U   /*!< Time out for HSE start up, in ms */
